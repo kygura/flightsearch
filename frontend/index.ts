@@ -4,10 +4,10 @@ import { Table } from "console-table-printer";
 
 // Local imports
 import * as tools from "../tools";
-
-
 import { FlightEntry, PriceInsights } from '../types';
-import fetchFlights from "../api/old"
+
+
+//import fetchFlights from "../api/old"
 
 
 export function printFlights(inputFlights: FlightEntry[]): void {

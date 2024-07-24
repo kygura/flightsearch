@@ -3,6 +3,7 @@
 # Markdown results
 md
 
+scripts
 
 # dotenv environment variable files
 .env
