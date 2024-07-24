@@ -4,7 +4,7 @@ import chalk from 'chalk';
 import { intro, outro, text, confirm, spinner } from '@clack/prompts';
 import { validateDate, compareDates, createTimeStamp } from "../tools/index.ts";
 import { reqParams } from '../types/index.ts';
-import fetchFlights from '../api/v2.ts';
+import fetchFlights from '../api/index.ts';
 
 import { printFlights, printPriceInsights } from '../frontend/index.ts';
 import * as tools from '../tools/index.ts';

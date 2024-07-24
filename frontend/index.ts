@@ -7,7 +7,7 @@ import * as tools from "../tools";
 
 
 import { FlightEntry, PriceInsights } from '../types';
-import fetchFlights from "../api"
+import fetchFlights from "../api/old"
 
 
 export function printFlights(inputFlights: FlightEntry[]): void {
@@ -29,7 +29,7 @@ export function printFlights(inputFlights: FlightEntry[]): void {
     sort: (row1, row2) => row1.price - row2.price,
   })
 
-  const showTime = chalk.yellow.italic.underline //.bgBlack
+  const showDates = chalk.yellow.italic //.bgBlack
 
   inputFlights.forEach(flight => {
     const flightData = {
@@ -37,9 +37,9 @@ export function printFlights(inputFlights: FlightEntry[]): void {
       destination: chalk.cyan(flight.destination),
       price: chalk.green(`${flight.price}€`),
       departure: flight.departure != "NaN/NaN" || flight.departure !== null ? 
-      showTime(tools.parseDateString(flight.departure)) :chalk.red("N/A"),
+      showDates(tools.parseDateString(flight.departure)) :chalk.red("N/A"),
       
-      arrival: flight.arrival !== "NaN/NaN" ? showTime(tools.parseDateString(flight.arrival))
+      arrival: flight.arrival !== "NaN/NaN" ? showDates(tools.parseDateString(flight.arrival))
       :chalk.red("N/A"),
     }
 
@@ -73,29 +73,25 @@ export function printPriceInsights(insights: PriceInsights) {
 
   // Not implemented / default case
   default:
-    console.log(chalk.blue(PRICE_LEVEL));
+    console.log(chalk.gray(PRICE_LEVEL));
   }
 
 }
 
-
-async function main(origin: string, dest: string, begin: string) {
+/* async function main(origin: string, dest: string, start: string) {
   console.log(chalk.yellow(`
-    \nSearching flights for:\n${origin} ─> ${dest} from ${begin}\n`));
+    \nSearching flights for:\n${origin} ─> ${dest} from ${start}\n`));
 
-  const { bestFlights, otherFlights, priceInsights } = await fetchFlights(origin, dest, begin);
+  const { bestFlights, otherFlights, priceInsights } = await fetchFlights(origin, dest, start);
 
   printPriceInsights(priceInsights);
   
   if (bestFlights && otherFlights) {
     printFlights(bestFlights || otherFlights)
-    //printFlights(otherFlights)
   }
 
+  tools.saveToMarkdown(bestFlights, priceInsights, origin, dest)
+} */
 
-  tools.saveToMarkdown(bestFlights, priceInsights, origin, dest, begin)
+//main("AGP", "AKL", "11/08/2024");
 
-}
-
-
-main("AGP", "AKL", "11/08/2024");

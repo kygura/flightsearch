@@ -2,75 +2,94 @@ import { getJson } from "serpapi";
 import ora from "ora";
 import chalk from "chalk";
 
-import { PriceInsights } from '../types'
-import { createTimeStamp, addNMonths } from "../tools";
-
-let API_KEY = Bun.env.SERPAPI_KEY || "KEY_DEFAULT"
+import { PriceInsights, searchParams, FlightResult, reqParams } from '../types/index.ts';
+import { addNMonths } from "../tools/index.ts";
 
 
-export default async function fetchFlights(startID: string, destID: string,
-  start: string, tripLength: number=1, end: string = "") {
-
-  const spinner = ora("> Fetching flights...").start();
-
-  let departsAt = createTimeStamp(start);
-  let returnsAt = end ? createTimeStamp(end) : createTimeStamp(addNMonths(start, tripLength));
-  let travelType = end ? "2" : "1";
-
-  //Hardcoded oneway trips for now
-  try {
-    let jsonData = await getJson({
-      api_key: API_KEY,
-      engine: "google_flights",
-      departure_id: startID,
-      arrival_id: destID,
-      currency: "EUR",
-      outbound_date: departsAt,
-      //return_date: returnsAt,
-      type: "2"
-    });
-
-    const bestEntries = jsonData.best_flights || jsonData.other_flights || [];
-    const fallbackEntries = jsonData.other_flights || [];
-    const allFlights = bestEntries.length + fallbackEntries.length
-
-    spinner.succeed(chalk.green.bold.underline(`Found ${allFlights} flights\n`));
-
-    const bestFlights = bestEntries.map(match => {
-      // For each entry match, assign the result to a new variable.
-      const flights = match.flights || [];
-      const origin = flights[0]?.departure_airport?.id || startID;
-      const destination = flights[flights.length - 1]?.arrival_airport?.id || destID;
-      const price = match.price || "N/A";
-      const departure = flights[0]?.departure_airport?.time || "N/A";
-      const returnFlight = flights[flights.length - 1]?.arrival_airport?.time || "N/A";
-      return { origin, destination, price, departure, return: returnFlight };
-    });
-
-    const otherFlights = fallbackEntries.map(match => {
-      const flights = match.flights || [];
-      const origin = flights[0]?.departure_airport?.id || startID;
-      const destination = flights[flights.length - 1]?.arrival_airport?.id || destID;
-      const price = match.price || "N/A";
-      const departure = flights[0]?.departure_airport?.time || "N/A";
-      const returnFlight = flights[flights.length - 1]?.arrival_airport?.time || "N/A";
-      return { origin, destination, price, departure, return: returnFlight };
-    });
+let API_KEY = Bun.env.SERPAPI_KEY // || process.env.SERPAPI_KEY
 
 
-    const priceInsights: PriceInsights = {
-      priceRange: jsonData.price_insights.typical_price_range,
-      lowest_price: jsonData.price_insights.lowest_price,
-      price_level: jsonData.price_insights.price_level
-    };
+async function fetchFlights(searchParams: reqParams) {
+  
+  const spinner = ora("Fetching flight data...").start();
 
-    return { bestFlights,otherFlights,priceInsights };
+  const {origin, destination, outboundDate, returnDate, travelNumber, length} = searchParams
 
-  } catch (error) {
-    spinner.fail("Error fetching flight data");
-    console.error('\nError when calling the Serpapi API:\n', error);
-    return { bestFlights: null, priceInsights: null, otherFlights: null };
+  //if (returnDate == undefined) travelNumber = "1"
+  const defParams : searchParams = {
+    api_key: API_KEY,
+    engine: "google_flights",
+    departure_id: origin,
+    arrival_id: destination,
+    currency: "EUR",
+    outbound_date: outboundDate,
+    type: travelNumber
   }
+
+
+
+  async function attemptFetch(isRoundTrip: boolean) {
+    if (!isRoundTrip) {
+      defParams["return_date"] = addNMonths(outboundDate,2);
+    }
+    // Inject the following parameters if we wish to search for roundtrips
+    if (isRoundTrip && returnDate != undefined) {
+      defParams["return_date"] = returnDate
+    }
+
+    try {
+      let jsonData = await getJson(defParams);
+
+      const bestEntries = jsonData.best_flights || [];
+      const fallbackEntries = jsonData.other_flights || [];
+
+      return { bestEntries, fallbackEntries, jsonData }
+    } catch (error) {
+      console.error(`Error while calling fetching flights during the API call:\n`, error);
+      return null;
+    }
+  }
+
+  //const isRoundTrip = travelNumber === "1";
+  let isRoundTrip: boolean
+  if (travelNumber == "1") isRoundTrip = true; else isRoundTrip = false
+
+  let result: FlightResult = await attemptFetch(isRoundTrip);
+
+    if (!result || (result.bestEntries.length === 0 && result.fallbackEntries.length === 0)) {
+      spinner.text = `No ${isRoundTrip ? "roundtrip":"oneway"} flights found. Attempting again with ${!isRoundTrip ? "roundtrip" : "oneway"} flights.`;
+      result = await attemptFetch(!isRoundTrip);
+    }
+
+  if (!result) {
+    spinner.fail("Final Error:\n Must API error on the server");
+    return { bestFlights: [], priceInsights: null, otherFlights: [] };
+  }
+
+  const { bestEntries, fallbackEntries, jsonData } = result;
+  spinner.succeed(chalk.green(`Found ${bestEntries.length + fallbackEntries.length} flights\n`))
+
+
+  const processFlights = (entries) => entries.map(match => {
+    const flights = match.flights || [];
+    const originID = flights[0]?.departure_airport?.id || origin;
+    const destID = flights[flights.length - 1]?.arrival_airport?.id || destination;
+    const price = match.price || "N/A";
+    const departure = flights[0]?.departure_airport?.time || "N/A";
+    const returnFlight = flights.length > 1 ? flights[flights.length - 1]?.arrival_airport?.time : "N/A";
+    return { originID, destID, price, departure, return: returnFlight };
+  });
+
+  const bestFlights = processFlights(bestEntries);
+  const otherFlights = processFlights(fallbackEntries);
+
+  const priceInsights: PriceInsights = {
+    priceRange: jsonData.price_insights?.typical_price_range || ["N/A", "N/A"],
+    lowest_price: jsonData.price_insights?.lowest_price || "N/A",
+    price_level: jsonData.price_insights?.price_level || "N/A"
+  };
+
+  return { bestFlights, priceInsights, otherFlights };
 }
 
-//export { fetchFlights };
+export default fetchFlights
