@@ -23,7 +23,7 @@ async function main() {
     width: 100
   })));
 
-  intro(chalk.blue.italic("Search flights from the terminal\n"));
+  intro(chalk.blue.italic("A simple tool to search for flights from the terminal\n"));
 
   const origin = await prompts({
     type: "text",
@@ -49,12 +49,10 @@ async function main() {
         name: "start",
         mask: "YYYY-MM-DD",
         message: 'Enter the outbound date:',
-        //validate: (value) => {}
-    
     })
 
 
-/*   
+  /*   
     let isRoundTrip = await confirm({
     message: 'Is this a round-trip?',
   }) 
@@ -63,11 +61,12 @@ async function main() {
   let trip = await prompts({
     type: 'select',
       name: 'type',
-      message: 'Search for oneway flights, or include a return flight (roundtrip) ?',
+      message: 'Select travel method:\n ',
       choices: [
-        { title: 'Oneway-trip', value: 'oneway' },
+        { title: 'Oneway', value: 'oneway' },
         { title: 'Roundtrip', value: 'roundtrip' },
       ],
+    hint: "Search for oneway flights, or include return flights in the search ?",
     initial: 1,
     }
   )
@@ -96,15 +95,15 @@ async function main() {
   s.start('Searching for flights');
 
   const params: reqParams = {
-    origin: origin.code1.toUpperCase(),
+    outbound: origin.code1.toUpperCase(),
     destination: destination.code2.toUpperCase(),
-    outboundDate: formatDate(outboundDate.start),
-    tripNumber: trip.type == "oneway" ? "2" : trip.type == "roundtrip" ? "1" : "2",
+    departDate: formatDate(outboundDate.start),
     returnDate: returnDate.end != undefined ? formatDate(returnDate.end) : null,
+    tripNumber: trip.type == "oneway" ? "2" : trip.type == "roundtrip" ? "1" : "2",
     //tripDuration: journey.duration != undefined ? journey.duration : null
   };
   
-  console.log("Calling API with the following parameters:\n",params);
+  console.log("Calling API with the following parameters:\n\n",params);
   finalize(params)
 
   s.stop(chalk.green('Search completed'));
@@ -114,15 +113,14 @@ async function main() {
 async function finalize(params: reqParams) {
   const { bestFlights, otherFlights, priceInsights } = await fetchFlights(params);
 
+
   printPriceInsights(priceInsights);
   
-  printFlights(bestFlights, 
-  params.origin, params.destination) 
+  printFlights(bestFlights,params) 
   
-  printFlights(otherFlights, 
-  params.origin, params.destination) 
+  printFlights(otherFlights,params) 
   
-  saveToMarkdown(bestFlights, priceInsights, params.origin, params.destination)
+  saveToMarkdown(bestFlights, priceInsights, params)
 
 }
 

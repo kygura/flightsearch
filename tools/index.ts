@@ -3,7 +3,7 @@ import fs from "node:fs"
 import chalk from "chalk";
 
 
-import { FlightEntry, PriceInsights } from "../types/index.ts";
+import { FlightEntry, PriceInsights, reqParams } from "../types/index.ts";
 
 export const CURRENT_YEAR = new Date().getFullYear()
 
@@ -39,7 +39,8 @@ export const parseDateString = (dateString: string) => {
 }
 
 export function saveToMarkdown(flightEntries: FlightEntry[], priceInsights: PriceInsights, 
-origin: string, destination: string) {
+params: reqParams) {
+    let {outbound, destination, departDate, returnDate} = params;
 
   const depDate = flightEntries[0].departure
   
@@ -73,7 +74,7 @@ origin: string, destination: string) {
   };
 
   // Create header
-  mdContent += `| ${'Origin'.padEnd(colWidths.origin)} | ${'Destination'.padEnd(colWidths.destination)} | ${'Price'.padEnd(colWidths.price)} | ${'Departure'.padEnd(colWidths.departure)} | ${'Return'.padEnd(colWidths.arrival)} |\n`;
+  mdContent += `| ${'Origin'.padEnd(colWidths.origin)} | ${'Destination'.padEnd(colWidths.destination)} | ${'Price'.padEnd(colWidths.price)} | ${'Departure'.padEnd(colWidths.departure)} | ${'Arrival'.padEnd(colWidths.arrival)} |\n`;
 
   // Create separator
   mdContent += `|${'-'.repeat(colWidths.origin + 2)}|
@@ -84,8 +85,10 @@ origin: string, destination: string) {
     const originPadded = alignTextCenter(flight.origin, colWidths.origin);
     const destinationPadded = alignTextCenter(flight.destination, colWidths.destination);
     const pricePadded = `${flight.price}€`.padStart(5).padEnd(colWidths.price);
-    const departurePadded = parseDateString(flight.departure).padEnd(colWidths.departure);
-    const arrivalPadded = parseDateString(flight.arrival).padEnd(colWidths.arrival);
+    const departurePadded = parseDateString(flight.departure ? flight.departure : departDate)
+    .padEnd(colWidths.departure);
+    const arrivalPadded = parseDateString(flight.arrival ? flight.arrival : returnDate)
+    .padEnd(colWidths.arrival);
 
     mdContent += `| ${originPadded} | ${destinationPadded} | ${pricePadded} |
      ${departurePadded} | ${arrivalPadded} |\n`;

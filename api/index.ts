@@ -14,7 +14,7 @@ async function fetchFlights(cliParams: reqParams) {
   
   const spinner = ora("Fetching flight data...").start();
 
-  const {origin, destination, outboundDate, returnDate, tripNumber} = cliParams
+  const {outbound, destination, departDate, returnDate, tripNumber} = cliParams
 
   // travel type numbers
   //  1  = roundtrips
@@ -22,26 +22,20 @@ async function fetchFlights(cliParams: reqParams) {
   const defParams : apiParams = {
     api_key: API_KEY,
     engine: "google_flights",
-    departure_id: origin,
+    departure_id: outbound,
     arrival_id: destination,
     currency: "EUR",
-    outbound_date: outboundDate,
+    outbound_date: departDate,
     type: tripNumber
   }
 
-
-
   async function attemptFetch(tripN: string) {
 
-    // If it's a oneway
+    // Inject return_date prop if it's a roundway
     if (tripN == "1" && returnDate !== null) {
       defParams["return_date"] = returnDate
     }
 
-    if (tripN == "2") {
-      //defParams["type"] = "2"
-
-    }
 
     try {
       let jsonData = await getJson(defParams);
@@ -59,8 +53,8 @@ async function fetchFlights(cliParams: reqParams) {
   let result: FlightResult = await attemptFetch(tripNumber);
 
     if (!result || (result.bestEntries.length === 0 && result.fallbackEntries.length === 0)) {
-        let isOneWay: boolean
-        isOneWay = tripNumber === "2";
+      
+      let isOneWay: boolean = tripNumber === "2";
       
       spinner.text = `No ${isOneWay ? "oneway" : "roundtrip" } flights found. 
       Attempting again with ${!isOneWay ?  "roundtrip" : "oneway" } flights.`;
