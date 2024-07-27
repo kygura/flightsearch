@@ -2,7 +2,6 @@
   "name": "flight-scrapper",
   "module": "main.ts",
   "type": "module",
-
   "dependencies": {
     "@clack/prompts": "^0.7.0",
     "@types/figlet": "^1.5.8",
@@ -17,15 +16,16 @@
     "ora": "^8.0.1",
     "picocolors": "^1.0.1",
     "prompts": "^2.4.2",
-    "serpapi": "^2.1.0"
+    "serpapi": "^2.1.0",
+    "tsc": "^2.0.4"
   },
-  
   "devDependencies": {
     "@types/prompts": "^2.4.9",
-    "bun-types": "latest"
+    "bun-types": "latest",
+    "hono": "^4.5.2",
+    "nodemon": "^3.1.4"
   },
-
   "peerDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.5.4"
   }
 }

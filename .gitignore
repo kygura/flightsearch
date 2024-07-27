@@ -2,8 +2,8 @@
 
 # Markdown results
 md
+backend
 
-scripts
 
 # dotenv environment variable files
 .env
@@ -12,12 +12,12 @@ scripts
 .env.production.local
 .env.local
 
-# Trash
+# lockfiles
 deno.lock
 bun.lockdb
 
 
-# Dependency directories
+# Dependencies directories / black hole / heaviest shit ever
 node_modules/
 
 

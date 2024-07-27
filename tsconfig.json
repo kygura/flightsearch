@@ -1,8 +1,11 @@
 {
   "compilerOptions": {
+    "target": "esnext",
     "lib": ["ESNext","DOM"],
     "module": "esnext",
-    "target": "esnext",
+    "outDir": "./bin",
+    "rootDir": "./",
+    
     "moduleResolution": "bundler",
     "moduleDetection": "force",
     "allowImportingTsExtensions": true,

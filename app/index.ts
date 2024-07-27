@@ -9,7 +9,7 @@ import { printFlights, printPriceInsights } from '../frontend/index.ts';
 
 import { assertFuture, formatDate, saveToMarkdown } from "../tools/index.ts";
 
-import { intro, outro, spinner} from '@clack/prompts';
+import { intro, outro, spinner, confirm} from '@clack/prompts';
 import prompts from 'prompts';
 import type { Answers } from 'prompts';
 
@@ -23,14 +23,21 @@ async function main() {
     width: 100
   })));
 
-  intro(chalk.blue.italic("A simple tool to search for flights from the terminal\n"));
+  let msgwrapper = chalk.italic.white
+  intro(msgwrapper.blackBright("A simple tool for flight-searching\n"));
 
+  let w = await confirm({
+    message: chalk.cyan('Initiate program?')
+  })
+  if (!w) userExit();
+
+ 
   const origin = await prompts({
     type: "text",
     name: "code1",
     mask: "AGP",
     initial: "AGP",
-    message: 'Enter the code for the outbound airport:',
+    message: msgwrapper.green('Enter the code for the outbound airport:'),
     validate: (value) => value.length !== 3 ? 'Please enter a valid 3-letter code' : true,
   }); 
 
@@ -38,45 +45,37 @@ async function main() {
     type: "text",
     name: "code2",
     initial: "AKL",
-    message: 'Enter the code for the destination airport:',
+    message: msgwrapper.green('Enter the code for the destination airport:'),
     validate: (value) => value.length !== 3 ? 'Please enter a valid 3-letter code' : true,
   });
-
-  //let simpleDateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
-
-  let outboundDate : Answers<string> = await prompts({
-        type: "date",
-        name: "start",
-        mask: "YYYY-MM-DD",
-        message: 'Enter the outbound date:',
-    })
-
-
-  /*   
-    let isRoundTrip = await confirm({
-    message: 'Is this a round-trip?',
-  }) 
-  */
 
   let trip = await prompts({
     type: 'select',
       name: 'type',
-      message: 'Select travel method:\n ',
+      message: msgwrapper.black('Select travel method:\n'),
+      hint: "You may search for oneway flights, or include return flights in your search",
       choices: [
         { title: 'Oneway', value: 'oneway' },
         { title: 'Roundtrip', value: 'roundtrip' },
       ],
-    hint: "You may search for oneway flights, or include return flights in your search",
-    initial: 1,
+      initial: 0,
     }
   )
 
+  let outboundDate : Answers<string> = await prompts({
+        message: msgwrapper.bgBlue('Enter the outbound date:'),
+        type: "date",
+        name: "start",
+        mask: "YYYY-MM-DD",
+    })
+
+
   let returnDate: Answers<string> = await prompts({
         // Will only display if we have confirmed for a roundtrip
+        message: msgwrapper.bgBlue('Enter the return date:'),
         type: trip.type == "roundtrip" ? "date" : false,
         name: "end",
         mask: "YYYY-MM-DD",
-        message: 'Enter the return date:',
         validate: value => assertFuture(value, outboundDate.start) ? true 
         : "Date must be set in the future"
       })
@@ -95,21 +94,20 @@ async function main() {
   };
   
   console.log("Calling API with the following parameters:\n\n",params);
-  finalize(params)
 
+  finalize(params)
   s.stop(chalk.green('Search completed'));
   outro(chalk.cyan.bold('Atlas has finished execution'))
+
 }
 
 async function finalize(params: reqParams) {
   const { bestFlights, otherFlights, priceInsights } = await fetchFlights(params);
 
-
   printPriceInsights(priceInsights);
   
   printFlights(bestFlights,params) 
-  
-  printFlights(otherFlights,params) 
+  //printFlights(otherFlights,params) 
   
   saveToMarkdown(bestFlights, priceInsights, params)
 
