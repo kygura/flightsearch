@@ -66,19 +66,10 @@ async function main() {
         { title: 'Oneway', value: 'oneway' },
         { title: 'Roundtrip', value: 'roundtrip' },
       ],
-    hint: "Search for oneway flights, or include return flights in the search ?",
+    hint: "You may search for oneway flights, or include return flights in your search",
     initial: 1,
     }
   )
-
-
- /*  let journey: Answers<string> = await prompts({
-    type: trip.type == "oneway" ? "number" : false,
-    name: 'duration',
-    message: 'Enter the duration of the trip (in days)',
-    validate: value => value > 7 && value < 300 ? value : "duration n must be 7 < n < 365 days"
-  }); */
-
 
   let returnDate: Answers<string> = await prompts({
         // Will only display if we have confirmed for a roundtrip

@@ -9,9 +9,15 @@ import { FlightEntry, PriceInsights, reqParams } from '../types';
 
 export function printFlights(flights: FlightEntry[],
 params: reqParams): void {
+
+  if (flights.length == 0) {
+    console.log(chalk.blue("\nNo flights found"))
+    return
+  }
+
   let {outbound, destination, departDate, returnDate} = params;
 
-  const table1 = new Table({
+  const flightsTable = new Table({
     columns: 
     [
       { name: "origin", title: "ORIGIN", alignment: "center" },
@@ -23,31 +29,31 @@ params: reqParams): void {
     sort: (row1, row2) => row1.price - row2.price,
   })
 
-  //const showDates = chalk.blue.italic //.bgBlack
 
   flights.forEach(flight => {
 
+    let dateDisplay = chalk.bgBlack.italic.white
+
     const entry = {
-      origin: chalk.magenta(flight.origin === undefined ? outbound : flight.origin),
-      destination: chalk.cyan(flight.destination === undefined ? destination : flight.destination),
+      origin: chalk.magenta(flight.origin != null ? flight.origin: outbound),
+      destination: chalk.cyan(flight.destination != null ? flight.destination: destination),
       price: chalk.green(`${flight.price} €`),
       
-      departure: flight.departure != undefined ? 
-      chalk.blue.italic(parseDateString(flight.departure)) :
-      departDate ? parseDateString(departDate)       
-        :chalk.red("N/A"),
+      departure: flight.departure != null ? 
+      dateDisplay(parseDateString(flight.departure)) :
+      parseDateString(departDate),
 
-      returnal: flight.arrival != undefined ? 
-      chalk.blue.italic(parseDateString(flight.arrival)) :
-      returnDate ? parseDateString(returnDate) 
-        :chalk.red("N/A"),
+      return: flight.arrival != null ? 
+      dateDisplay(parseDateString(flight.arrival)) :
+      returnDate != null ?
+      parseDateString(returnDate) : chalk.red("(N/A) ONEWAY"),
     }
-
-    table1.addRow(entry);
+    flightsTable.addRow(entry);
+  
   });
 
   console.log("\n");
-  table1.printTable();
+  flightsTable.printTable();
 }
 
 export function printPriceInsights(insights: PriceInsights) {
