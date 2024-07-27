@@ -20,7 +20,7 @@ export interface PriceInsights {
   price_level: string;
 }
 
-export interface searchParams {
+export interface apiParams {
   api_key: string;
   engine: string;
   departure_id: string;
@@ -34,10 +34,10 @@ export interface searchParams {
 export interface reqParams {
   origin: string
   destination: string
-  travelNumber: string
   outboundDate: string 
-  returnDate?: string | undefined
-  length?: number
+  tripNumber: "1" | "2" | null
+  returnDate?: string | null
+  tripDuration?: number | null 
 }
 
 

@@ -3,13 +3,6 @@
   "module": "main.ts",
   "type": "module",
 
-  "devDependencies": {
-    "@types/prompts": "^2.4.9",
-    "bun-types": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
-  },
   "dependencies": {
     "@clack/prompts": "^0.7.0",
     "@types/figlet": "^1.5.8",
@@ -25,5 +18,14 @@
     "picocolors": "^1.0.1",
     "prompts": "^2.4.2",
     "serpapi": "^2.1.0"
+  },
+  
+  "devDependencies": {
+    "@types/prompts": "^2.4.9",
+    "bun-types": "latest"
+  },
+
+  "peerDependencies": {
+    "typescript": "^5.0.0"
   }
 }

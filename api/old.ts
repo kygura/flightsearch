@@ -14,8 +14,8 @@ export default async function fetchFlights(startID: string, destID: string,
   const spinner = ora("> Fetching flights...").start();
 
   let departsAt = createTimeStamp(start);
-  let returnsAt = end ? createTimeStamp(end) : createTimeStamp(addNMonths(start, tripLength));
-  let travelType = end ? "2" : "1";
+  //let returnsAt = end ? createTimeStamp(end) : createTimeStamp(addNMonths(start, tripLength));
+  //let travelType = end ? "2" : "1";
 
   //Hardcoded oneway trips for now
   try {

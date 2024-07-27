@@ -2,39 +2,45 @@ import { getJson } from "serpapi";
 import ora from "ora";
 import chalk from "chalk";
 
-import { PriceInsights, searchParams, FlightResult, reqParams } from '../types/index.ts';
+import { PriceInsights, apiParams, FlightResult, reqParams } from '../types/index.ts';
 import { addNMonths } from "../tools/index.ts";
 
 
 let API_KEY = Bun.env.SERPAPI_KEY // || process.env.SERPAPI_KEY
 
 
-async function fetchFlights(searchParams: reqParams) {
+
+async function fetchFlights(cliParams: reqParams) {
   
   const spinner = ora("Fetching flight data...").start();
 
-  const {origin, destination, outboundDate, returnDate, travelNumber, length} = searchParams
+  const {origin, destination, outboundDate, returnDate, tripNumber} = cliParams
 
-  //if (returnDate == undefined) travelNumber = "1"
-  const defParams : searchParams = {
+  // travel type numbers
+  //  1  = roundtrips
+  //  2  = one-way
+  const defParams : apiParams = {
     api_key: API_KEY,
     engine: "google_flights",
     departure_id: origin,
     arrival_id: destination,
     currency: "EUR",
     outbound_date: outboundDate,
-    type: travelNumber
+    type: tripNumber
   }
 
 
 
-  async function attemptFetch(isRoundTrip: boolean) {
-    if (!isRoundTrip) {
-      defParams["return_date"] = addNMonths(outboundDate,2);
-    }
-    // Inject the following parameters if we wish to search for roundtrips
-    if (isRoundTrip && returnDate != undefined) {
+  async function attemptFetch(tripN: string) {
+
+    // If it's a oneway
+    if (tripN == "1" && returnDate !== null) {
       defParams["return_date"] = returnDate
+    }
+
+    if (tripN == "2") {
+      //defParams["type"] = "2"
+
     }
 
     try {
@@ -50,19 +56,23 @@ async function fetchFlights(searchParams: reqParams) {
     }
   }
 
-  //const isRoundTrip = travelNumber === "1";
-  let isRoundTrip: boolean
-  if (travelNumber == "1") isRoundTrip = true; else isRoundTrip = false
-
-  let result: FlightResult = await attemptFetch(isRoundTrip);
+  let result: FlightResult = await attemptFetch(tripNumber);
 
     if (!result || (result.bestEntries.length === 0 && result.fallbackEntries.length === 0)) {
-      spinner.text = `No ${isRoundTrip ? "roundtrip":"oneway"} flights found. Attempting again with ${!isRoundTrip ? "roundtrip" : "oneway"} flights.`;
-      result = await attemptFetch(!isRoundTrip);
+        let isOneWay: boolean
+        isOneWay = tripNumber === "2";
+      
+      spinner.text = `No ${isOneWay ? "oneway" : "roundtrip" } flights found. 
+      Attempting again with ${!isOneWay ?  "roundtrip" : "oneway" } flights.`;
+      
+      // Inverts the case 
+      // Could've used a boolean but it's the same
+      result = await attemptFetch(tripNumber == "2" ? "1" : "2");
+    
     }
 
   if (!result) {
-    spinner.fail("Final Error:\n Must API error on the server");
+    spinner.fail(chalk.red.bold("Final Error:\n Program terminated."))
     return { bestFlights: [], priceInsights: null, otherFlights: [] };
   }
 

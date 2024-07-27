@@ -87,7 +87,8 @@ origin: string, destination: string) {
     const departurePadded = parseDateString(flight.departure).padEnd(colWidths.departure);
     const arrivalPadded = parseDateString(flight.arrival).padEnd(colWidths.arrival);
 
-    mdContent += `| ${originPadded} | ${destinationPadded} | ${pricePadded} | ${departurePadded} |\n`;
+    mdContent += `| ${originPadded} | ${destinationPadded} | ${pricePadded} |
+     ${departurePadded} | ${arrivalPadded} |\n`;
   })
   
   const filename = `${origin}_TO_${destination}___${depDate.replace(/\//g, '-')}.md`;
@@ -97,8 +98,36 @@ origin: string, destination: string) {
   console.log(chalk.green(`\nSaved flight entries to ${filename}`));
 }
 
+
+
+// This function checks  wether date1 is set in a future (newer) date
+// than date 2
+export function assertFuture(date1: Date, date2: Date) {
+  const fd1 = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
+  const fd2 = new Date(date2.getFullYear(), date2.getMonth(), date2.getDate());
+
+  //return fd1.getTime() > fd2.getTime()
+  return date1.getTime() > date2.getTime() 
+ 
+}
+
+
+
+export function formatDate(date: string): string {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+
+
+
+
+
 export function validateDate(dateString: string): boolean {
-  const [day, month, year] = dateString.split('/').map(Number);
+  const [day, month, year] = dateString.split('-')?.map(Number);
   const date = new Date(year, month - 1, day);
   return date.getDate() === day && date.getMonth() === month - 1 && date.getFullYear() === year;
 }

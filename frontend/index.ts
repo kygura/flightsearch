@@ -7,17 +7,9 @@ import * as tools from "../tools";
 import { FlightEntry, PriceInsights } from '../types';
 
 
-//import fetchFlights from "../api/old"
+export function printFlights(flights: FlightEntry[],outbound: string, dest: string): void {
 
-
-export function printFlights(inputFlights: FlightEntry[]): void {
-
-  if (inputFlights.length === 0) {
-    console.log(chalk.red.bold("No flights found"));
-    return;
-  }
-
-  const table = new Table({
+  const table1 = new Table({
     columns: 
     [
       { name: "origin", title: "ORIGIN", alignment: "center" },
@@ -31,23 +23,24 @@ export function printFlights(inputFlights: FlightEntry[]): void {
 
   const showDates = chalk.yellow.italic //.bgBlack
 
-  inputFlights.forEach(flight => {
-    const flightData = {
-      origin: chalk.blue(flight.origin),
-      destination: chalk.cyan(flight.destination),
-      price: chalk.green(`${flight.price}€`),
-      departure: flight.departure != "NaN/NaN" || flight.departure !== null ? 
-      showDates(tools.parseDateString(flight.departure)) :chalk.red("N/A"),
+  flights.forEach(flight => {
+
+    const entry = {
+      origin: chalk.magenta(flight.origin === undefined ? outbound : flight.origin),
+      destination: chalk.cyan(flight.destination === undefined ? dest : flight.destination),
+      price: chalk.green(`${flight.price} €`),
       
-      arrival: flight.arrival !== "NaN/NaN" ? showDates(tools.parseDateString(flight.arrival))
+      departure: flight.departure !== null ? 
+      showDates(tools.parseDateString(flight.departure)) :chalk.red("N/A"),
+      arrival: flight.arrival != undefined ? showDates(tools.parseDateString(flight.arrival))
       :chalk.red("N/A"),
     }
 
-    table.addRow(flightData);
+    table1.addRow(entry);
   });
 
   console.log("\n");
-  table.printTable();
+  table1.printTable();
 }
 
 export function printPriceInsights(insights: PriceInsights) {
@@ -64,11 +57,11 @@ export function printPriceInsights(insights: PriceInsights) {
   case "LOW":
     console.log(chalk.green(PRICE_LEVEL));
     break;
-  case "TYPICAL":
-    console.log(chalk.yellow(PRICE_LEVEL));
-    break;
   case "HIGH":
     console.log(chalk.red(PRICE_LEVEL));
+    break;
+  case "TYPICAL":
+    console.log(chalk.black(PRICE_LEVEL));
     break;
 
   // Not implemented / default case
@@ -78,20 +71,5 @@ export function printPriceInsights(insights: PriceInsights) {
 
 }
 
-/* async function main(origin: string, dest: string, start: string) {
-  console.log(chalk.yellow(`
-    \nSearching flights for:\n${origin} ─> ${dest} from ${start}\n`));
 
-  const { bestFlights, otherFlights, priceInsights } = await fetchFlights(origin, dest, start);
-
-  printPriceInsights(priceInsights);
-  
-  if (bestFlights && otherFlights) {
-    printFlights(bestFlights || otherFlights)
-  }
-
-  tools.saveToMarkdown(bestFlights, priceInsights, origin, dest)
-} */
-
-//main("AGP", "AKL", "11/08/2024");
 
