@@ -1,10 +1,10 @@
 // airportCodes.ts
 
-interface CountryAirports {
-  [country: string]: string[];
+interface Airports {
+  [country: string] : string[]
 }
 
-const airportCodes: CountryAirports = {
+export const airportCodes: Airports = {
   "USA": ["ATL", "LAX", "ORD", "DFW", "JFK"],
   "CANADA": ["YYZ", "YVR", "YYC", "YUL", "YOW"],
   "UK": ["LHR", "LGW", "MAN", "STN", "EDI"],

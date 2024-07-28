@@ -1,17 +1,17 @@
-import fs from "node:fs"
 import chalk from "chalk";
-import { FlightEntry, Insights, reqParams } from "../types/index.ts";
+import fs from "node:fs"
 
 import airportCodes from '../constants/countries.ts';
+import { FlightEntry, Insights, reqParams } from "../types/index.ts";
+
+
 export const CURRENT_YEAR = new Date().getFullYear()
-
-
 //export function space(): void {console.log("\n")}
 
-export function saveToMarkdown(flightEntries: FlightEntry[], priceInsights: Insights, 
-params: reqParams) {
 
-let {outbound, destination, departDate, returnDate} = params;
+export async function saveToMarkdown(flightEntries: FlightEntry[], priceInsights: Insights, 
+params: reqParams) {
+  let {outbound, destination, departDate, returnDate} = params;
 
   //const departure = flightEntries[0].departure
   
@@ -67,26 +67,46 @@ let {outbound, destination, departDate, returnDate} = params;
   })
   
   const filename = `${origin}_TO_${destination}___${departDate.replace(/\//g, '-')}.md`;
-  const mdpath = `./md/${filename}`
+  const mdpath = `./md/flights/${filename}`
 
-  fs.writeFileSync(mdpath, mdContent)
-  console.log(chalk.green(`\nSaved flight entries to ${filename}`));
+  //fs.writeFileSync(mdpath, mdContent)
+  await Bun.write(
+  Bun.file(mdpath),
+  mdContent
+  );
+
+  console.log(chalk.green(`\nSaved fetched flight to ${filename}`));
 }
-
 
 
 // This function checks  wether date1 is set in a future (newer) date
 // than date 2
 export function assertFuture(date1: Date, date2: Date) {
   //const fd1 = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
-  //const fd2 = new Date(date2.getFullYear(), date2.getMonth(), date2.getDate());
-
+  //const fd2 = new Date(date2.getFullYear(), date2.getMonth(), date2.getDate())
   //return fd1.getTime() > fd2.getTime()
   return date1.getTime() > date2.getTime() 
- 
 }
 
 
+
+export function getAirPortsList(country: string) {
+  const airports = airportCodes[country.toUpperCase()];
+  if (!airports || airports.length === 0) {
+    throw new Error(`No airports found in the list for ${country}`);
+  }
+  return airports;
+}
+
+export function isAirport(code: string): boolean {
+  const codes = Object.values(airportCodes).flat();
+  return codes.includes(code.toUpperCase());
+}
+
+export function isCountry(country: string): boolean {
+  const countries = Object.keys(airportCodes);
+  return countries.includes(country.toUpperCase());
+}
 
 export const parseDateString = (dateString: string) => {
   if (dateString === "NaN/NaN") return "N/A";
@@ -104,27 +124,6 @@ export function formatDate(date: string): string {
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
-}
-
-
-
-
-export function getAirPortsList(country: string) {
-  const airports = airportCodes[country.toUpperCase()];
-  if (!airports || airports.length === 0) {
-    throw new Error(`No airports found for the given country: ${country}`);
-  }
-  return airports;
-}
-
-export function isAirport(code: string): boolean {
-  const codes = Object.values(airportCodes).flat();
-  return codes.includes(code.toUpperCase());
-}
-
-export function isCountry(country: string): boolean {
-  const countries = Object.keys(airportCodes);
-  return countries.includes(country.toUpperCase());
 }
 
 

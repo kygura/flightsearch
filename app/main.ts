@@ -41,6 +41,7 @@ async function app() {
 
   let outCodes: string[];
   if (isAirport(outInput.outLocation)) {
+    // Single airport choice
     outCodes = [outInput.outLocation.toUpperCase()];
     
   } else if (isCountry(outInput.outLocation)) {
@@ -77,16 +78,16 @@ async function app() {
     choices: destCodes.map(code => ({ title: code, value: code })),
   }, { onCancel });
 
-  const tripType = await prompts({
+  const tripN = await prompts({
     type: 'select',
     name: 'type',
     message: msg.black('Select flight type:\n'),
     hint: "You may search for oneway flights, or include return flights in your search",
     choices: [
-      { title: 'Oneway flight', value: 'oneway' },
-      { title: 'Round-trip flight', value: 'roundtrip' },
+      { title: 'Oneway flight', value: '2' },
+      { title: 'Round-trip flight', value: '1' },
     ],
-    initial: 0,
+    initial: 1,
   }, { onCancel });
 
   const outDate: Answers<string> = await prompts({
@@ -94,25 +95,27 @@ async function app() {
     type: "date",
     name: "start",
     mask: "YYYY-MM-DD",
-    validate: value => assertFuture(value, new Date()) ? true : "Date must be set in the future"
+    validate: value => assertFuture(value, new Date()) ? true : 
+    "Date must be set in the future"
   }, { onCancel });
 
   const retDate: Answers<string> = await prompts({
     message: msg.bgBlue('Enter the return date:'),
-    type: tripType.type === "roundtrip" ? "date" : false,
+    type: tripN.type === "1" ? "date" : false,
     name: "end",
     mask: "YYYY-MM-DD",
-    validate: value => assertFuture(value, outDate.start) ? true : "Date must be set after the outbound date"
+    validate: value => assertFuture(value, outDate.start) ? true : 
+    "Date must be set after the outbound date"
   }, { onCancel });
 
   console.log("\n");
 
   const params: reqParams = {
-    outbound: outAirport.outCode.toUpperCase(),
-    destination: destAirport.destCode.toUpperCase(),
+    outbound: outAirport.outCode,
+    destination: destAirport.destCode,
     departDate: formatDate(outDate.start),
     returnDate: retDate.end ? formatDate(retDate.end) : null,
-    tripNumber: tripType.type === "oneway" ? "2" : "1",
+    tripNumber: tripN.type,
   };
 
   console.log(msg.green("Calling the API with the following parameters:\n\n"), params);
@@ -135,7 +138,7 @@ async function finalize(params: reqParams) {
   }
 
   printFlights(bestFlights, params);
-  saveToMarkdown(bestFlights, priceInsights, params);
+  await saveToMarkdown(bestFlights, priceInsights, params);
 }
 
 function exit() {
