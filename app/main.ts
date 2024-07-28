@@ -4,11 +4,12 @@ import { intro, spinner, confirm } from '@clack/prompts';
 import prompts from 'prompts';
 import type { Answers } from 'prompts';
 
-import fetchFlights from '../api/index.ts';
-import { reqParams } from '../types/index.ts';
 
+import fetchFlights from '../api/index.ts';
+import { assertFuture, formatDate, saveToMarkdown, getAirPortsList, isAirport, isCountry } 
+from "../helpers/index.ts";
+import { reqParams } from '../types/index.ts';
 import { printFlights, printPriceInsights } from '../cli/index.ts';
-import { assertFuture, formatDate, saveToMarkdown, getAirPortsList, isAirport, isCountry } from "../helpers/index.ts";
 
 
 async function app() {
@@ -114,7 +115,7 @@ async function app() {
     tripNumber: tripType.type === "oneway" ? "2" : "1",
   };
 
-  console.log("Calling API with the following parameters:\n\n", params);
+  console.log(msg.green("Calling the API with the following parameters:\n\n"), params);
 
   s.start('Searching for flights');
   finalize(params).finally(() => {

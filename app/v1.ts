@@ -22,8 +22,7 @@ async function app() {
 
   let msgwrapper = chalk.italic.white;
   let  s = spinner();
-  intro(msgwrapper.bgCyan.white("A simple tool for flight-searching\n"));
-
+  intro(msgwrapper.bgCyan.white("A simple clitool for flight-searching\n"));
 
   const onCancel = () => {
     userExit();
@@ -74,8 +73,8 @@ async function app() {
 
   let returnDate: Answers<string> = await prompts({
     // Will only display if we have confirmed for a roundtrip
-    message: msgwrapper.bgBlue('Enter the return date:'),
     type: trip.type == "roundtrip" ? "date" : false,
+    message: msgwrapper.bgBlue('Enter the return date:'),
     name: "end",
     mask: "YYYY-MM-DD",
     validate: value => assertFuture(value, outboundDate.start) ? true : "Date must be set in the future"

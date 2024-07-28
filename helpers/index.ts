@@ -1,11 +1,12 @@
 import fs from "node:fs"
 import chalk from "chalk";
-
 import { FlightEntry, Insights, reqParams } from "../types/index.ts";
 
+import airportCodes from '../constants/countries.ts';
 export const CURRENT_YEAR = new Date().getFullYear()
 
-export function space() {console.log("\n")}
+
+//export function space(): void {console.log("\n")}
 
 export function saveToMarkdown(flightEntries: FlightEntry[], priceInsights: Insights, 
 params: reqParams) {
@@ -106,7 +107,7 @@ export function formatDate(date: string): string {
 }
 
 
-import airportCodes from '../countries.ts';
+
 
 export function getAirPortsList(country: string) {
   const airports = airportCodes[country.toUpperCase()];
