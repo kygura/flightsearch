@@ -3,7 +3,7 @@
 # Markdown results
 md
 backend
-
+scripts
 
 # dotenv environment variable files
 .env
@@ -13,7 +13,6 @@ backend
 .env.local
 
 # lockfiles
-deno.lock
 bun.lockdb
 
 

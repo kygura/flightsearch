@@ -1,51 +1,22 @@
 import fs from "node:fs"
-
 import chalk from "chalk";
 
-
-import { FlightEntry, PriceInsights, reqParams } from "../types/index.ts";
+import { FlightEntry, Insights, reqParams } from "../types/index.ts";
 
 export const CURRENT_YEAR = new Date().getFullYear()
 
-export function createTimeStamp(dateParam: string): string {
-  let [day, month] = dateParam.split('/');
-  let fullDate = `${new Date().getFullYear()}-${month}-${day}`;
-  let parsedDate = new Date(fullDate);
-  const present = new Date();
+export function space() {console.log("\n")}
 
-  if (parsedDate < present) {
-    return `${new Date().getFullYear() + 1}-${month}-${day}`;
-  }
-  return fullDate;
-}
-
-export function addNMonths(dateParam: string, monthplus: number): string {
-  const [day, month] = dateParam.split('/').map(Number);
-  const currentYear = new Date().getFullYear();
-  let returnDate = new Date(currentYear, month - 1, day);
-  returnDate.setMonth(returnDate.getMonth() + monthplus);
-  let newMonth = (returnDate.getMonth() + 1).toString().padStart(2, '0');
-  let newDay = returnDate.getDate().toString().padStart(2, '0');
-  return `${newDay}/${newMonth}`;
-}
-
-export const parseDateString = (dateString: string) => {
-  if (dateString === "NaN/NaN") return "N/A";
-
-  const date = new Date(dateString);
-  const day = date.getDate().toString().padStart(2, '0');
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  return `${day}/${month}`;
-}
-
-export function saveToMarkdown(flightEntries: FlightEntry[], priceInsights: PriceInsights, 
+export function saveToMarkdown(flightEntries: FlightEntry[], priceInsights: Insights, 
 params: reqParams) {
-    let {outbound, destination, departDate, returnDate} = params;
 
-  const depDate = flightEntries[0].departure
+let {outbound, destination, departDate, returnDate} = params;
+
+  //const departure = flightEntries[0].departure
   
   let mdContent = `# Flights to ${destination}\n\n`
-  mdContent += `## From: ${origin} -> ${destination} Date: ${depDate}\n\n`;
+  mdContent += `## From: ${outbound} -> ${destination}` 
+  mdContent += `\nDate: ${departDate}\n\n`;
 
   mdContent += `## Price Insights\n\n`
   mdContent += `**Typical Price Range:**
@@ -94,7 +65,7 @@ params: reqParams) {
      ${departurePadded} | ${arrivalPadded} |\n`;
   })
   
-  const filename = `${origin}_TO_${destination}___${depDate.replace(/\//g, '-')}.md`;
+  const filename = `${origin}_TO_${destination}___${departDate.replace(/\//g, '-')}.md`;
   const mdpath = `./md/${filename}`
 
   fs.writeFileSync(mdpath, mdContent)
@@ -106,14 +77,24 @@ params: reqParams) {
 // This function checks  wether date1 is set in a future (newer) date
 // than date 2
 export function assertFuture(date1: Date, date2: Date) {
-  const fd1 = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
-  const fd2 = new Date(date2.getFullYear(), date2.getMonth(), date2.getDate());
+  //const fd1 = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
+  //const fd2 = new Date(date2.getFullYear(), date2.getMonth(), date2.getDate());
 
   //return fd1.getTime() > fd2.getTime()
   return date1.getTime() > date2.getTime() 
  
 }
 
+
+
+export const parseDateString = (dateString: string) => {
+  if (dateString === "NaN/NaN") return "N/A";
+
+  const date = new Date(dateString);
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  return `${day}/${month}`;
+}
 
 
 export function formatDate(date: string): string {
@@ -125,18 +106,23 @@ export function formatDate(date: string): string {
 }
 
 
+import airportCodes from '../countries.ts';
 
-
-
-
-export function validateDate(dateString: string): boolean {
-  const [day, month, year] = dateString.split('-')?.map(Number);
-  const date = new Date(year, month - 1, day);
-  return date.getDate() === day && date.getMonth() === month - 1 && date.getFullYear() === year;
+export function getAirPortsList(country: string) {
+  const airports = airportCodes[country.toUpperCase()];
+  if (!airports || airports.length === 0) {
+    throw new Error(`No airports found for the given country: ${country}`);
+  }
+  return airports;
 }
 
-export function compareDates(date1: string, date2: string): number {
-  const [day1, month1, year1] = date1.split('/').map(Number);
-  const [day2, month2, year2] = date2.split('/').map(Number);
-  return new Date(year1, month1 - 1, day1).getTime() - new Date(year2, month2 - 1, day2).getTime();
+export function isAirportCode(input: string): boolean {
+  const codes = Object.values(airportCodes).flat();
+  return codes.includes(input.toUpperCase());
 }
+export function isCountry(input: string): boolean {
+  const codes = Object.keys(airportCodes);
+  return codes.includes(input.toUpperCase());
+}
+
+

@@ -1,19 +1,17 @@
 import chalk from 'chalk';
 import figlet from 'figlet';
-import { reqParams } from '../types/index.ts';
-import fetchFlights from '../api/index.ts';
-import { printFlights, printPriceInsights } from '../cli/index.ts';
-import { assertFuture, formatDate, saveToMarkdown } from "../tools/index.ts";
-import { intro, outro, spinner, confirm } from '@clack/prompts';
+import { intro, spinner, confirm } from '@clack/prompts';
 import prompts from 'prompts';
 import type { Answers } from 'prompts';
-//import * as t from "../types/index.ts";
+
+import fetchFlights from '../api/index.ts';
+import { reqParams } from '../types/index.ts';
+
+import { printFlights, printPriceInsights } from '../cli/index.ts';
+import { assertFuture, formatDate, saveToMarkdown } from "../helpers/index.ts";
 
 
-async function main() {
-  
-  let  s = spinner();
-
+async function app() {
   console.log("\n");
   console.log(chalk.cyan(figlet.textSync('Atlas', {
     font: 'Slant',
@@ -23,6 +21,7 @@ async function main() {
   })));
 
   let msgwrapper = chalk.italic.white;
+  let  s = spinner();
   intro(msgwrapper.bgCyan.white("A simple tool for flight-searching\n"));
 
 
@@ -33,7 +32,8 @@ async function main() {
   
   let w = await confirm({
     message: chalk.cyan('Launch program ?')
-  });
+    
+  })
   if (!w) onCancel();
 
   const origin = await prompts({
@@ -80,6 +80,9 @@ async function main() {
     mask: "YYYY-MM-DD",
     validate: value => assertFuture(value, outboundDate.start) ? true : "Date must be set in the future"
   }, { onCancel });
+  
+  //space()
+  console.log("\n")
 
   s.start('Searching for flights');
 
@@ -117,14 +120,18 @@ async function finalize(params: reqParams) {
 
 // Handle graceful exit
 function userExit() {
-  console.log(chalk.red.italic('\nProgram exited by user (Ctrl + C)'))
+  let message = "Program exited by user"
+  console.log(chalk.red.italic(`\n${message}`));
   process.exit(0);
 }
 
-process.on('SIGINT', userExit);
-process.on('SIGTERM', userExit);
+process.on('SIGINT', () => userExit());
+process.on('SIGTERM', () => userExit());
 
-main().catch((e) => {
+// Handle Ctrl + D (EOF)
+process.stdin.on('end', () => userExit());
+
+app().catch((e) => {
   userExit();
   //console.error(err);
 });

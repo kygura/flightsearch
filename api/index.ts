@@ -1,24 +1,20 @@
-import { getJson } from "serpapi";
+
 import ora from "ora";
 import chalk from "chalk";
 
-import { PriceInsights, apiParams, FlightResult, reqParams } from '../types/index.ts';
-import { addNMonths } from "../tools/index.ts";
-
+import { getJson } from "serpapi";
+import { Insights, apiParams, FlightResult, reqParams } from '../types/index.ts';
 
 let API_KEY = Bun.env.SERPAPI_KEY // || process.env.SERPAPI_KEY
 
-
-
 async function fetchFlights(cliParams: reqParams) {
   
-  const spinner = ora("Fetching flight data...").start();
-
   const {outbound, destination, departDate, returnDate, tripNumber} = cliParams
+  const oraspin = ora("Fetching flights...").start();
 
-  // travel type numbers
+  // travel types
   //  1  = roundtrips
-  //  2  = one-way
+  //  2  = oneways
   const defParams : apiParams = {
     api_key: API_KEY,
     engine: "google_flights",
@@ -35,7 +31,9 @@ async function fetchFlights(cliParams: reqParams) {
     if (tripN == "1" && returnDate !== null) {
       defParams["return_date"] = returnDate
     }
-
+    else if (tripN =="2") {
+      defParams.return_date = {}
+    }
 
     try {
       let jsonData = await getJson(defParams);
@@ -56,7 +54,7 @@ async function fetchFlights(cliParams: reqParams) {
       
       let isOneWay: boolean = tripNumber === "2";
       
-      spinner.text = `No ${isOneWay ? "oneway" : "roundtrip" } flights found. 
+      oraspin.text = `No ${isOneWay ? "oneway" : "roundtrip" } flights found. 
       Attempting again with ${!isOneWay ?  "roundtrip" : "oneway" } flights.`;
       
       // Inverts the case 
@@ -66,12 +64,12 @@ async function fetchFlights(cliParams: reqParams) {
     }
 
   if (!result) {
-    spinner.fail(chalk.red.bold("Final Error:\n Program terminated."))
+    oraspin.fail(chalk.red.bold("Final Error:\n Program terminated."))
     return { bestFlights: [], priceInsights: null, otherFlights: [] };
   }
 
   const { bestEntries, fallbackEntries, jsonData } = result;
-  spinner.succeed(chalk.green(`Found ${bestEntries.length + fallbackEntries.length} flights\n`))
+  oraspin.succeed(chalk.green(`Found ${bestEntries.length + fallbackEntries.length} flights\n`))
 
 
   const processFlights = (entries) => entries.map(match => {
@@ -87,7 +85,7 @@ async function fetchFlights(cliParams: reqParams) {
   const bestFlights = processFlights(bestEntries);
   const otherFlights = processFlights(fallbackEntries);
 
-  const priceInsights: PriceInsights = {
+  const priceInsights: Insights = {
     priceRange: jsonData.price_insights?.typical_price_range || ["N/A", "N/A"],
     lowest_price: jsonData.price_insights?.lowest_price || "N/A",
     price_level: jsonData.price_insights?.price_level || "N/A"

@@ -3,8 +3,8 @@ import chalk from 'chalk';
 import { Table } from "console-table-printer";
 
 // Local imports
-import { parseDateString } from '../tools';
-import { FlightEntry, PriceInsights, reqParams } from '../types';
+import { FlightEntry, Insights, reqParams } from '../types';
+import { parseDateString } from '../helpers';
 
 
 export function printFlights(flights: FlightEntry[],
@@ -30,7 +30,7 @@ fallbackParams: reqParams): void {
     let dateDisplay = chalk.white.bgBlack.underline.italic
 
     const entry = {
-      origin: chalk.magenta(flight.origin != null ? flight.origin: outbound),
+      origin: chalk.blue(flight.origin != null ? flight.origin: outbound),
       destination: chalk.cyan(flight.destination != null ? flight.destination: destination),
       price: chalk.green(`${flight.price} €`),
       
@@ -41,7 +41,7 @@ fallbackParams: reqParams): void {
       return: flight.arrival != null ? 
       dateDisplay(parseDateString(flight.arrival)) :
       returnDate != null ?
-      parseDateString(returnDate) : chalk.gray("ONEWAY"),
+      parseDateString(returnDate) : chalk.gray("NO RETURN"),
     }
     flightsTable.addRow(entry);
   
@@ -51,13 +51,12 @@ fallbackParams: reqParams): void {
   flightsTable.printTable();
 }
 
-export function printPriceInsights(insights: PriceInsights) {
-  console.log(chalk.cyan(`\nTypical Price Range:`)
-    + chalk.bgCyan.black(`\n$${insights.priceRange[0]} - $${insights.priceRange[1]}`));
+export function printPriceInsights(insights: Insights) {
+  console.log(chalk.cyan(`\nTypical Range:`)
+  + chalk.bgCyan.black(`\n$${insights.priceRange[0]} - $${insights.priceRange[1]}`));
 
-  console.log(chalk.cyan.bold.underline("\Insights:"));
+  console.log(chalk.cyan.bold.underline("\nInsights:"));
   console.log(chalk.cyan("\nLowest Price:") + chalk.green(`\n${insights.lowest_price}€`));
-
   console.log(chalk.cyan(`\nPrice Level:`))
 
   const PRICE_LEVEL = insights.price_level.toUpperCase();
@@ -72,8 +71,7 @@ export function printPriceInsights(insights: PriceInsights) {
   case "TYPICAL":
     console.log(chalk.black(PRICE_LEVEL));
     break;
-
-  // Not implemented / default case
+  // Catches the default case / typical
   default:
     console.log(chalk.black(PRICE_LEVEL));
   }
