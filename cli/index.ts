@@ -52,22 +52,23 @@ fallbackParams: reqParams): void {
 }
 
 export function printPriceInsights(insights: Insights) {
+  console.log(chalk.cyan.bold.underline("\nInsights:"));
+
   console.log(chalk.cyan(`\nTypical Range:`)
   + chalk.bgCyan.black(`\n$${insights.priceRange[0]} - $${insights.priceRange[1]}`));
 
-  console.log(chalk.cyan.bold.underline("\nInsights:"));
-  console.log(chalk.cyan("\nLowest Price:") + chalk.green(`\n${insights.lowest_price}€`));
-  console.log(chalk.cyan(`\nPrice Level:`))
+  console.log(chalk.blue("\nLOWEST PRICE + LEVEL:") 
+  + chalk.green(`\n${insights.lowest_price}€ \t`));
 
   const PRICE_LEVEL = insights.price_level.toUpperCase();
-
   switch (PRICE_LEVEL) {
   case "LOW":
     console.log(chalk.green(PRICE_LEVEL));
     break;
   case "HIGH":
-    console.log(chalk.red(PRICE_LEVEL));
+    console.log(chalk.yellow(PRICE_LEVEL));
     break;
+  
   case "TYPICAL":
     console.log(chalk.black(PRICE_LEVEL));
     break;

@@ -41,7 +41,7 @@ async function app() {
   let outCodes: string[];
   if (isAirport(outInput.outLocation)) {
     outCodes = [outInput.outLocation.toUpperCase()];
-
+    
   } else if (isCountry(outInput.outLocation)) {
     outCodes = getAirPortsList(outInput.outLocation);
   }
@@ -138,8 +138,7 @@ async function finalize(params: reqParams) {
 }
 
 function exit() {
-  const message = "Program exited";
-  console.log(chalk.red.italic(`\n${message}`));
+  console.log(chalk.red.italic(`\n$"Program exited"`));
   process.exit(0);
 }
 
