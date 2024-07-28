@@ -6,7 +6,6 @@ export interface reqParams {
   departDate: string 
   returnDate?: string | null
   tripNumber: "1" | "2"
-  tripDuration?: number | null 
 }
 
 export interface apiParams {
@@ -16,7 +15,7 @@ export interface apiParams {
   arrival_id: string
   currency: string
   outbound_date: string
-  return_date?: string | {}
+  return_date?: string | null
   type: "1" | "2"
 }
 
@@ -29,7 +28,7 @@ export interface FlightEntry {
   arrival?: string
 }
 
-export interface FlightResult {
+export interface Result {
   bestEntries: any[]
   fallbackEntries: any[]
   jsonData: JSON | any

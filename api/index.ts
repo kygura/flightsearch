@@ -3,7 +3,7 @@ import ora from "ora";
 import chalk from "chalk";
 
 import { getJson } from "serpapi";
-import { Insights, apiParams, FlightResult, reqParams } from '../types/index.ts';
+import { Insights, apiParams, Result, reqParams } from '../types/index.ts';
 
 let API_KEY = Bun.env.SERPAPI_KEY // || process.env.SERPAPI_KEY
 
@@ -27,12 +27,12 @@ async function fetchFlights(cliParams: reqParams) {
 
   async function attemptFetch(tripN: string) {
 
-    // Inject return_date prop if it's a roundway
-    if (tripN == "1" && returnDate !== null) {
+    // Inject return_date property if it's a roundway
+    if (tripN == "1" && returnDate != null) {
       defParams["return_date"] = returnDate
     }
-    else if (tripN =="2") {
-      defParams.return_date = {}
+    else if (tripN =="2" && defParams.return_date) {
+      delete defParams.return_date
     }
 
     try {
@@ -48,14 +48,14 @@ async function fetchFlights(cliParams: reqParams) {
     }
   }
 
-  let result: FlightResult = await attemptFetch(tripNumber);
+  let result: Result = await attemptFetch(tripNumber);
 
     if (!result || (result.bestEntries.length === 0 && result.fallbackEntries.length === 0)) {
       
       let isOneWay: boolean = tripNumber === "2";
       
       oraspin.text = `No ${isOneWay ? "oneway" : "roundtrip" } flights found. 
-      Attempting again with ${!isOneWay ?  "roundtrip" : "oneway" } flights.`;
+      Attempting again with ${!isOneWay ?  "roundtrip" : "oneway" } flights.`
       
       // Inverts the case 
       // Could've used a boolean but it's the same

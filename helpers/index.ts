@@ -75,16 +75,13 @@ params: reqParams) {
   mdContent
   );
 
-  console.log(chalk.green(`\nSaved fetched flight to ${filename}`));
+  console.log(chalk.green(`\nSaved flights to ${filename} at ${mdpath}`));
 }
 
 
 // This function checks  wether date1 is set in a future (newer) date
 // than date 2
 export function assertFuture(date1: Date, date2: Date) {
-  //const fd1 = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
-  //const fd2 = new Date(date2.getFullYear(), date2.getMonth(), date2.getDate())
-  //return fd1.getTime() > fd2.getTime()
   return date1.getTime() > date2.getTime() 
 }
 
