@@ -8,14 +8,9 @@ import { FlightEntry, PriceInsights, reqParams } from '../types';
 
 
 export function printFlights(flights: FlightEntry[],
-params: reqParams): void {
+fallbackParams: reqParams): void {
 
-  if (flights.length == 0) {
-    console.log(chalk.blue("\nNo flights found"))
-    return
-  }
-
-  let {outbound, destination, departDate, returnDate} = params;
+  let {outbound, destination, departDate, returnDate} = fallbackParams;
 
   const flightsTable = new Table({
     columns: 
@@ -32,7 +27,7 @@ params: reqParams): void {
 
   flights.forEach(flight => {
 
-    let dateDisplay = chalk.bgBlack.italic.white
+    let dateDisplay = chalk.white.bgBlack.underline.italic
 
     const entry = {
       origin: chalk.magenta(flight.origin != null ? flight.origin: outbound),
@@ -46,7 +41,7 @@ params: reqParams): void {
       return: flight.arrival != null ? 
       dateDisplay(parseDateString(flight.arrival)) :
       returnDate != null ?
-      parseDateString(returnDate) : chalk.red("(N/A) ONEWAY"),
+      parseDateString(returnDate) : chalk.gray("ONEWAY"),
     }
     flightsTable.addRow(entry);
   
@@ -57,13 +52,14 @@ params: reqParams): void {
 }
 
 export function printPriceInsights(insights: PriceInsights) {
-  console.log(chalk.white(`\nTypical Price Range:`)
+  console.log(chalk.cyan(`\nTypical Price Range:`)
     + chalk.bgCyan.black(`\n$${insights.priceRange[0]} - $${insights.priceRange[1]}`));
 
-  console.log(chalk.cyan.bold.underline("\nPrice Insights:"));
-  console.log(chalk.white("\nLowest Price:") + chalk.green.bold(`\n${insights.lowest_price}€`));
+  console.log(chalk.cyan.bold.underline("\Insights:"));
+  console.log(chalk.cyan("\nLowest Price:") + chalk.green(`\n${insights.lowest_price}€`));
 
-  console.log(chalk.white(`\nPrice Level:`))
+  console.log(chalk.cyan(`\nPrice Level:`))
+
   const PRICE_LEVEL = insights.price_level.toUpperCase();
 
   switch (PRICE_LEVEL) {
@@ -79,7 +75,7 @@ export function printPriceInsights(insights: PriceInsights) {
 
   // Not implemented / default case
   default:
-    console.log(chalk.gray(PRICE_LEVEL));
+    console.log(chalk.black(PRICE_LEVEL));
   }
 
 }
