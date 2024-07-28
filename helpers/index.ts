@@ -116,13 +116,14 @@ export function getAirPortsList(country: string) {
   return airports;
 }
 
-export function isAirportCode(input: string): boolean {
+export function isAirport(code: string): boolean {
   const codes = Object.values(airportCodes).flat();
-  return codes.includes(input.toUpperCase());
+  return codes.includes(code.toUpperCase());
 }
-export function isCountry(input: string): boolean {
-  const codes = Object.keys(airportCodes);
-  return codes.includes(input.toUpperCase());
+
+export function isCountry(country: string): boolean {
+  const countries = Object.keys(airportCodes);
+  return countries.includes(country.toUpperCase());
 }
 
 

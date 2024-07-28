@@ -19,7 +19,7 @@ const airportCodes: CountryAirports = {
   "RUSSIA": ["SVO", "DME", "LED", "VKO", "KUF"],
   "MEXICO": ["MEX", "CUN", "GDL", "MTY", "TIJ"],
   "ITALY": ["FCO", "MXP", "VCE", "NAP", "BLQ"],
-  "SPAIN": ["MAD", "BCN", "AGP", "PMI", "ALC","LPA"],
+  "SPAIN": ["AGP", "LPA","MAD", "BCN"],
   "UAE": ["DXB", "AUH", "SHJ", "DWC", "RKT"],
   "TURKEY": ["IST", "SAW", "AYT", "ESB", "ADB"],
   "NETHERLANDS": ["AMS", "RTM", "EIN", "GRQ", "MST"],

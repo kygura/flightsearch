@@ -8,21 +8,23 @@ import fetchFlights from '../api/index.ts';
 import { reqParams } from '../types/index.ts';
 
 import { printFlights, printPriceInsights } from '../cli/index.ts';
-import { assertFuture, formatDate, saveToMarkdown, getAirPortsList, isAirportCode, isCountry } from "../helpers/index.ts";
+import { assertFuture, formatDate, saveToMarkdown, getAirPortsList, isAirport, isCountry } from "../helpers/index.ts";
 
 
 async function app() {
   console.log("\n");
+  
   console.log(chalk.cyan(figlet.textSync('Atlas', {
     font: 'Slant',
     horizontalLayout: 'default',
     verticalLayout: 'fitted',
     width: 100
-  })));
-
+  }))
+  );
   const msg = chalk.italic.white;
-  const s = spinner();
   intro(msg.bgCyan.white("A simple tool for flight-searching\n"));
+
+  const s = spinner();
 
   const onCancel = () => {
     exit();
@@ -37,9 +39,9 @@ async function app() {
   }, { onCancel });
 
   let outCodes: string[];
-  if (isAirportCode(outInput.outLocation)) {
-    // Assigns a single airport element
+  if (isAirport(outInput.outLocation)) {
     outCodes = [outInput.outLocation.toUpperCase()];
+
   } else if (isCountry(outInput.outLocation)) {
     outCodes = getAirPortsList(outInput.outLocation);
   }
@@ -60,12 +62,12 @@ async function app() {
   }, { onCancel });
 
   let destCodes: string[];
-  if (isAirportCode(destInput.destLocation)) {
+  if (isAirport(destInput.destLocation)) {
     destCodes = [destInput.destLocation.toUpperCase()];
   } else if (isCountry(outInput.outLocation)) {
     destCodes = getAirPortsList(destInput.destLocation);
   }
-  
+
   const destAirport = await prompts({
     type: "select",
     name: "destCode",
@@ -136,7 +138,7 @@ async function finalize(params: reqParams) {
 }
 
 function exit() {
-  const message = "Program exited by user";
+  const message = "Program exited";
   console.log(chalk.red.italic(`\n${message}`));
   process.exit(0);
 }
