@@ -12,6 +12,18 @@ import { reqParams } from '../types/index.ts';
 import { printFlights, printPriceInsights } from '../cli/index.ts';
 
 
+function validateLocation(input: string): string[] {
+  let locations: string[] // = []
+
+  if (isAirport(input)) {
+    locations = [input.toUpperCase()];
+  }
+  else if (isCountry(input)) {
+    locations = getAirPortsList(input);
+  }
+  return locations;
+}
+
 async function app() {
   console.log("\n");
   
@@ -34,19 +46,12 @@ async function app() {
 
   const outInput = await prompts({
     type: "text",
-    name: "outLocation",
+    name: "value",
     initial: "AGP",
     message: msg.green('Enter the outbound country/airport:'),
   }, { onCancel });
 
-  let outCodes: string[];
-  if (isAirport(outInput.outLocation)) {
-    // Single airport choice
-    outCodes = [outInput.outLocation.toUpperCase()];
-    
-  } else if (isCountry(outInput.outLocation)) {
-    outCodes = getAirPortsList(outInput.outLocation);
-  }
+  let outCodes: string[] = validateLocation(outInput.value)
 
   const outAirport = await prompts({
     type: "select",
@@ -58,17 +63,12 @@ async function app() {
 
   const destInput = await prompts({
     type: "text",
-    name: "destLocation",
+    name: "val",
     initial: "LPA",
     message: msg.green('Enter the destination country/airport:'),
   }, { onCancel });
 
-  let destCodes: string[];
-  if (isAirport(destInput.destLocation)) {
-    destCodes = [destInput.destLocation.toUpperCase()];
-  } else if (isCountry(outInput.outLocation)) {
-    destCodes = getAirPortsList(destInput.destLocation);
-  }
+  let destCodes: string[] = validateLocation(destInput.val)
 
   const destAirport = await prompts({
     type: "select",

@@ -77,7 +77,18 @@ params: reqParams) {
 
   console.log(chalk.green(`\nSaved flights to ${filename} at ${mdpath}`));
 }
+/* 
+export function validateLocation(input: string) {
+  let locations: string[] // = []
 
+  if (isAirport(input)) {
+    locations = [input.toUpperCase()];
+  }
+  else if (isCountry(input)) {
+    locations = getAirPortsList(input);
+  }
+  return locations;
+} */
 
 // This function checks  wether date1 is set in a future (newer) date
 // than date 2
