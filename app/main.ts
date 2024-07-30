@@ -6,8 +6,9 @@ import type { Answers } from 'prompts';
 
 
 import fetchFlights from '../api/index.ts';
-import { assertFuture, formatDate, saveFlightsAsMarkdown, getAirPortsList, isAirport, isCountry } 
-from "../helpers/index.ts";
+import { assertFuture, formatDate, saveFlightsAsMarkdown, 
+getAirPortsList, isAirport, isCountry } from "../helpers/index.ts";
+
 import { reqParams } from '../types/index.ts';
 import { printFlights, printPriceInsights } from '../cli/index.ts';
 
@@ -37,7 +38,7 @@ async function app() {
   }))
   );
   const crwapper = chalk.italic.blue;
-  intro(crwapper.bgCyan("A simple tool for flight-searching\n"));
+  intro(crwapper.bgCyan("A simple flight-searching tool\n"));
 
   const s = spinner();
 
@@ -79,9 +80,9 @@ async function app() {
     choices: destCodes.map(code => ({ title: code, value: code })),
   }, { onCancel });
 
-  const tripN = await prompts({
+  const tripType = await prompts({
     type: 'select',
-    name: 'type',
+    name: 'number',
     message: crwapper.black('Select flight type:\n'),
     hint: "You may search for oneway flights, or include return flights in your search",
     choices: [
@@ -97,35 +98,34 @@ async function app() {
     name: "start",
     mask: "YYYY-MM-DD",
     validate: value => assertFuture(value, new Date()) ? true : 
-    "Date must be set in the future"
+    "Outbound date must be set in the future"
   }, { onCancel });
 
   const retDate: Answers<string> = await prompts({
     message: crwapper.bgBlue('Enter the return date:'),
-    type: tripN.type === "1" ? "date" : false,
+    type: tripType.number === "1" ? "date" : false,
     name: "end",
     mask: "YYYY-MM-DD",
     validate: value => assertFuture(value, outDate.start) ? true : 
-    "Date must be set after the outbound date"
+    "Return date must be set after the outbound date"
   }, { onCancel });
 
-  console.log("\n");
 
   const params: reqParams = {
     outbound: outAirport.out,
     destination: destAirport.dest,
     departDate: formatDate(outDate.start),
     returnDate: retDate.end ? formatDate(retDate.end) : null,
-    tripNumber: tripN.type,
+    tripNumber: tripType.number,
   };
 
   let search = await confirm({
-  message: crwapper("Perform search ?")
+  message: crwapper("Perform search?")
   })
+  console.log(crwapper.blue("\nCalling the API with the following parameters:\n\n"), params);
 
   if (search) {
-  s.start('Searching for flights');
-  //console.log(crwapper.blue("Calling the API with the following parameters:\n\n"), params);
+  s.start('Searching for flights...');
     searchFlights(params).finally(() => {
     s.stop(chalk.green('SEARCH COMPLETED'));
     });
@@ -151,9 +151,8 @@ async function searchFlights(params: reqParams) {
   const filename = `${params.outbound}_${params.destination}
   _${params.departDate.replace(/\//g, '-')}.md`;
   const mdpath = `./md/${filename}`
+
   await saveFlightsAsMarkdown(bestFlights, params,mdpath);
-
-
   console.log(chalk.green(`\nSaved flights to ${filename} at ${mdpath}`));
   }
   catch (err) {console.error(errorWrapper("[ERROR] WHILE SAVING:\n", err))}
