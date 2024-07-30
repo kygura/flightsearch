@@ -4,6 +4,7 @@
 md
 backend
 scripts
+mocks
 
 # dotenv environment variable files
 .env
