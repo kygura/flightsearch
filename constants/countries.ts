@@ -1,4 +1,4 @@
-// airportCodes.ts
+// countries.ts
 
 interface Airports {
   [country: string] : string[]

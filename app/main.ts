@@ -12,8 +12,6 @@ getAirPortsList, isAirport, isCountry } from "../helpers/index.ts";
 import { reqParams } from '../types/index.ts';
 import { printFlights, printPriceInsights } from '../cli/index.ts';
 
-let errorWrapper = chalk.italic.red
-
 
 function getLocation(choice: string): string[] {
   let locations: string[] // = []
@@ -37,8 +35,8 @@ async function app() {
     width: 100
   }))
   );
-  const crwapper = chalk.italic.blue;
-  intro(crwapper.bgCyan("A simple flight-searching tool\n"));
+  const crwapper = chalk.italic.cyan;
+  intro(crwapper.bgWhite("A simple flight-searching tool\n"));
 
   const s = spinner();
 
@@ -103,7 +101,7 @@ async function app() {
 
   const retDate: Answers<string> = await prompts({
     message: crwapper.bgBlue('Enter the return date:'),
-    type: tripType.number === "1" ? "date" : false,
+    type: tripType.number == "1" ? "date" : false,
     name: "end",
     mask: "YYYY-MM-DD",
     validate: value => assertFuture(value, outDate.start) ? true : 
@@ -127,6 +125,7 @@ async function app() {
   if (search) {
   s.start('Searching for flights...');
     searchFlights(params).finally(() => {
+    
     s.stop(chalk.green('SEARCH COMPLETED'));
     });
   }
@@ -153,14 +152,15 @@ async function searchFlights(params: reqParams) {
   const mdpath = `./md/${filename}`
 
   await saveFlightsAsMarkdown(bestFlights, params,mdpath);
-  console.log(chalk.green(`\nSaved flights to ${filename} at ${mdpath}`));
+  console.log(chalk.green(`\nSaved flights to ${filename}\n`));
   }
-  catch (err) {console.error(errorWrapper("[ERROR] WHILE SAVING:\n", err))}
+  catch (err) {console.error(msgErr("[FS:ERROR] WHILE SAVING:\n", err))}
 }
 
+let msgErr = chalk.red.bold
 
 function exit() {
-  console.log(chalk.red.italic("\n$ Program exited"));
+  console.log(msgErr("\n$ Program exited"));
   process.exit(0);
 }
 
@@ -170,5 +170,5 @@ process.stdin.on('end', () => exit());
 
 app().catch((e) => {
   exit();
-  console.error(e);
+  console.error(msgErr("[ERROR]:\n",e));
 });

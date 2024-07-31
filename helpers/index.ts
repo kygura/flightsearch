@@ -63,57 +63,61 @@ params: reqParams, mdpath) {
 
   //const departure = flightEntries[0].departure
   
-  let mdContent = `# Flights to ${destination}\n\n`
-  mdContent +=    `## From: ${outbound} -> ${destination}` 
-  mdContent += `\n ## Times: ${departDate} ${returnDate ? ` -> ${returnDate}` : ""}\n\n`;
+  let content = `# Flights to ${destination}\n\n`
+  content +=    `## From: ${outbound} -> ${destination}` 
+  content += `\n ## Times: ${departDate} ${returnDate ? ` -> ${returnDate}` : ""}\n\n`;
 
 
-  mdContent += `## Flights Table\n\n`;
-
-  // Define column widths
-  const colWidths = {
-    origin: 7,       // 3 characters + 2 spaces on each side
-    destination: 11, // 3 characters + 4 spaces on each side
-    price: 8,        // 4-6 characters (including €) + 1 space on each side
-    departure: 9,    // 5 characters + 2 spaces on each side
-    arrival: 9        // 5 characters + 2 spaces on each side
-  };
+  content += `## Flights Table\n\n`;
 
   // Helper function to center-align text
-  function alignTextCenter(text: string, width: number) {
+  function centerText(text: string, width: number) {
     const padding = width - text.length;
     const leftPad = Math.floor(padding / 2);
     const rightPad = padding - leftPad;
     return ' '.repeat(leftPad) + text + ' '.repeat(rightPad);
   };
 
-  // Create header
-  mdContent += `| ${'Origin'.padEnd(colWidths.origin)} | ${'Destination'.padEnd(colWidths.destination)} | ${'Price'.padEnd(colWidths.price)} | ${'Departure'.padEnd(colWidths.departure)} | ${'Arrival'.padEnd(colWidths.arrival)} |\n`;
+
+  // Create headers
+  let 
+  originHeader = 'Origin'.padStart(2).padEnd(2),
+  destinationHeader = "Destination".padStart(1).padEnd(1),
+  priceHeader = 'Price'.padStart(3).padEnd(3),
+  departureHeader = 'Departure'.padEnd(3).padStart(1),
+  arrivalHeader = 'Arrival'.padStart(2).padEnd(2)
+
+  const widths = {
+    origin: originHeader.length,            // 3 characters + 2 spaces on each side
+    destination: destinationHeader.length, // 3 characters + 4 spaces on each side
+    price: priceHeader.length,             // 4-6 characters (including €) + 1 space on each side
+    departure: departureHeader.length,    // 5 characters + 2 spaces on each side
+    arrival: arrivalHeader.length        // 5 characters + 2 spaces on each side
+  };
+
+  content += `|${originHeader}|${destinationHeader}|${priceHeader}|${departureHeader}|${arrivalHeader}|\n`;
 
   // Create separator
-  mdContent += `|${'-'.repeat(colWidths.origin + 2)}|
-  ${'-'.repeat(colWidths.destination + 2)}|${'-'.repeat(colWidths.price + 2)}|${'-'.repeat(colWidths.departure + 2)}|
-  ${'-'.repeat(colWidths.arrival + 2)}|\n`;
+  content += `|${'-'.repeat(originHeader.length)}|
+  ${'-'.repeat(destinationHeader.length)}|${'-'.repeat(priceHeader.length)}|${'-'.repeat(departureHeader.length)}|${'-'.repeat(arrivalHeader.length)}|\n`;
 
   flightEntries.forEach(flight => {
-    const originPadded = alignTextCenter(flight.origin ? flight.origin : outbound, colWidths.origin);
-    const destinationPadded = alignTextCenter(flight.destination ? flight.destination : destination, colWidths.destination);
-    const pricePadded = `${flight.price}€`.padStart(5).padEnd(colWidths.price);
+    const originPadded = centerText(flight.origin ? flight.origin : outbound, widths.origin);
+    const destinationPadded = centerText(flight.destination ? flight.destination : destination, widths.destination);
+    const pricePadded = `${flight.price}€`.padStart(5).padEnd(widths.price);
     const departurePadded = parseDateString(flight.departure ? flight.departure : departDate)
-    .padEnd(colWidths.departure);
+    .padEnd(widths.departure);
     const arrivalPadded = parseDateString(flight.arrival ? flight.arrival : returnDate)
-    .padEnd(colWidths.arrival);
+    .padEnd(widths.arrival);
 
-    mdContent += `| ${originPadded} | ${destinationPadded} | ${pricePadded} |
+    content += `| ${originPadded} | ${destinationPadded} | ${pricePadded} |
      ${departurePadded} | ${arrivalPadded} |\n`;
   })
   
-
-
-  //fs.writeFileSync(mdpath, mdContent)
+  //fs.writeFileSync(mdpath, content)
   await Bun.write(
   Bun.file(mdpath),
-  mdContent
+  content
   );
 
 }
