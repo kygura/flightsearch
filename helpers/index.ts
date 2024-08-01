@@ -58,10 +58,8 @@ export function formatDate(date: string): string {
 
 
 export async function saveFlightsAsMarkdown(flightEntries: FlightEntry[],
-params: reqParams, mdpath) {
+params: reqParams) {
   let {outbound, destination, departDate, returnDate} = params;
-
-  //const departure = flightEntries[0].departure
   
   let content = `# Flights to ${destination}\n\n`
   content +=    `## From: ${outbound} -> ${destination}` 
@@ -113,11 +111,14 @@ params: reqParams, mdpath) {
     content += `| ${originPadded} | ${destinationPadded} | ${pricePadded} |
      ${departurePadded} | ${arrivalPadded} |\n`;
   })
-  
-  //fs.writeFileSync(mdpath, content)
-  await Bun.write(
-  Bun.file(mdpath),
-  content
-  );
 
+  let filename = `${params.outbound}_${params.destination}
+  _${params.departDate.replace(/\//g, '-')}.md`;
+  let mdpath = `./md/${filename}`
+  
+  fs.writeFileSync(mdpath, content)
+  //await Bun.write(
+  //Bun.file(mdpath),
+  //content
+  //);
 }

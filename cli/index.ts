@@ -27,7 +27,7 @@ fallbackParams: reqParams): void {
 
   flights.forEach(flight => {
 
-    let dateDisplay = chalk.white.bgBlack.underline.italic
+    let displayTime = chalk.white.bgBlack.underline.italic
 
     const entry = {
       origin: chalk.blue(flight.origin != null ? flight.origin: outbound),
@@ -35,13 +35,13 @@ fallbackParams: reqParams): void {
       price: chalk.green(`${flight.price} €`),
       
       departure: flight.departure != null ? 
-      dateDisplay(parseDateString(flight.departure)) :
-      parseDateString(departDate),
+      displayTime(parseDateString(flight.departure)) :
+      displayTime(parseDateString(departDate)),
 
       return: flight.arrival != null ? 
-      dateDisplay(parseDateString(flight.arrival)) :
+      displayTime(parseDateString(flight.arrival)) :
       returnDate != null ?
-      parseDateString(returnDate) : chalk.gray("NO RETURN"),
+      displayTime(parseDateString(returnDate)) : chalk.gray("NO RETURN"),
     }
     flightsTable.addRow(entry);
   
@@ -62,19 +62,21 @@ export function printPriceInsights(insights: Insights) {
 
   const PRICE_LEVEL = insights.price_level.toUpperCase();
   switch (PRICE_LEVEL) {
+
   case "LOW":
     console.log(chalk.green(PRICE_LEVEL));
     break;
   case "HIGH":
     console.log(chalk.yellow(PRICE_LEVEL));
     break;
-  
   case "TYPICAL":
     console.log(chalk.black(PRICE_LEVEL));
     break;
   // Catches the default case / typical
   default:
     console.log(chalk.black(PRICE_LEVEL));
+    //break;
+    
   }
 
 }

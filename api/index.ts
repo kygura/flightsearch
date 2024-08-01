@@ -3,16 +3,20 @@ import ora from "ora";
 import chalk from "chalk";
 
 import { getJson } from "serpapi";
-import { Insights, apiParams, Result, reqParams } from '../types/index.ts';
+import { Insights, apiParams, Result, reqParams, FlightEntry } from '../types/index.ts';
 
-let API_KEY = Bun.env.SERPAPI_KEY // || process.env.SERPAPI_KEY
+let API_KEY = Bun.env.SERPAPI_KEY || process.env.SERPAPI_KEY || null
+
+if (!API_KEY) console.error(chalk.red("No API KEY set. Add a SERPAPI_KEY to the .env file"));
+//if (!API_KEY) throw new Error("No API KEY set. Add a SERPAPI_KEY to the .env file");
+
 
 async function fetchFlights(cliParams: reqParams) {
   
   const {outbound, destination, departDate, returnDate, tripNumber} = cliParams
   const oraspin = ora("Fetching flights...").start();
 
-  // travel types
+  // valid travel type numbers
   //  1  = roundtrips
   //  2  = oneways
   const defParams : apiParams = {
@@ -78,8 +82,8 @@ async function fetchFlights(cliParams: reqParams) {
     const destID = flights[flights.length - 1]?.arrival_airport?.id || destination;
     const price = match.price || "N/A";
     const departure = flights[0]?.departure_airport?.time || "N/A";
-    const returnFlight = flights.length > 1 ? flights[flights.length - 1]?.arrival_airport?.time : "N/A";
-    return { originID, destID, price, departure, return: returnFlight };
+    const arrival = flights.length > 1 ? flights[flights.length - 1]?.arrival_airport?.time : "N/A";
+    return { originID, destID, price, departure, return: arrival };
   });
 
   const bestFlights = processFlights(bestEntries);

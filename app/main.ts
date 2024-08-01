@@ -147,11 +147,12 @@ async function searchFlights(params: reqParams) {
 
   // Save results in a file
   try {
+  await saveFlightsAsMarkdown(bestFlights, params);
+
+
   const filename = `${params.outbound}_${params.destination}
   _${params.departDate.replace(/\//g, '-')}.md`;
-  const mdpath = `./md/${filename}`
-
-  await saveFlightsAsMarkdown(bestFlights, params,mdpath);
+  
   console.log(chalk.green(`\nSaved flights to ${filename}\n`));
   }
   catch (err) {console.error(msgErr("[FS:ERROR] WHILE SAVING:\n", err))}
