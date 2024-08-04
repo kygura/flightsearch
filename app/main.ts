@@ -5,12 +5,11 @@ import prompts from 'prompts';
 import type { Answers } from 'prompts';
 
 
-import fetchFlights from '../api/index.ts';
-import { assertFuture, formatDate, saveFlightsAsMarkdown, 
-getAirPortsList, isAirport, isCountry } from "../helpers/index.ts";
-
 import { reqParams } from '../types/index.ts';
 import { printFlights, printPriceInsights } from '../cli/index.ts';
+import fetchFlights from '../api/index.ts';
+import { assertFuture, formatDate, 
+saveFlightsAsMarkdown, getAirPortsList, isAirport, isCountry } from "../helpers/index.ts";
 
 
 function getLocation(choice: string): string[] {
@@ -25,6 +24,9 @@ function getLocation(choice: string): string[] {
   return locations;
 }
 
+let crwapper = chalk.italic.cyan;
+let msgErr = chalk.red.bold
+
 async function app() {
   console.log("\n");
   
@@ -35,7 +37,6 @@ async function app() {
     width: 100
   }))
   );
-  const crwapper = chalk.italic.cyan;
   intro(crwapper.bgWhite("A simple flight-searching tool\n"));
 
   const s = spinner();
@@ -120,7 +121,7 @@ async function app() {
   let search = await confirm({
   message: crwapper("Perform search?")
   })
-  console.log(crwapper.blue("\nCalling the API with the following parameters:\n\n"), params);
+  console.log(crwapper.blue("\nCalling API with the following parameters:\n\n"), params);
 
   if (search) {
   s.start('Searching for flights...');
@@ -150,15 +151,14 @@ async function searchFlights(params: reqParams) {
   await saveFlightsAsMarkdown(bestFlights, params);
 
 
-  const filename = `${params.outbound}_${params.destination}
-  _${params.departDate.replace(/\//g, '-')}.md`;
-  
+  const filename = `${params.outbound}_${params.destination}_
+  ${priceInsights.lowest_price}.md`;
+
   console.log(chalk.green(`\nSaved flights to ${filename}\n`));
-  }
-  catch (err) {console.error(msgErr("[FS:ERROR] WHILE SAVING:\n", err))}
+  } catch (err) { console.error(msgErr("[FS:ERROR] WHILE SAVING:\n", err)) }
 }
 
-let msgErr = chalk.red.bold
+
 
 function exit() {
   console.log(msgErr("\n$ Program exited"));

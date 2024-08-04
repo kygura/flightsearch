@@ -1,14 +1,13 @@
 import chalk from "chalk";
 import fs from "node:fs"
 
-import airportCodes from '../constants/countries.ts';
 import { FlightEntry, Insights, reqParams } from "../types/index.ts";
 
 
+import airportCodes from '../constants/countries.ts';
+
 export const CURRENT_YEAR = new Date().getFullYear()
 //export function space(): void {console.log("\n")}
-
-
 
 
 // This function checks  wether date1 is set in a future (newer) date
@@ -57,6 +56,11 @@ export function formatDate(date: string): string {
 
 
 
+
+
+
+
+
 export async function saveFlightsAsMarkdown(flightEntries: FlightEntry[],
 params: reqParams) {
   let {outbound, destination, departDate, returnDate} = params;
@@ -77,13 +81,15 @@ params: reqParams) {
   };
 
 
-  // Create headers
+  // Inject spaces into characters to size the title headers
+  // "TITLE" -> "  {TITLE}  "
+  
   let 
-  originHeader = 'Origin'.padStart(2).padEnd(2),
-  destinationHeader = "Destination".padStart(1).padEnd(1),
-  priceHeader = 'Price'.padStart(3).padEnd(3),
-  departureHeader = 'Departure'.padEnd(3).padStart(1),
-  arrivalHeader = 'Arrival'.padStart(2).padEnd(2)
+  originHeader = 'Origin'.padStart(2," ").padEnd(2," "),
+  destinationHeader = "Destination".padStart(1," ").padEnd(1," "),
+  priceHeader = 'Price'.padStart(3," ").padEnd(3," "),
+  departureHeader = 'Departure'.padEnd(3," ").padStart(1," "),
+  arrivalHeader = 'Arrival'.padStart(2," ").padEnd(2," ")
 
   const widths = {
     origin: originHeader.length,            // 3 characters + 2 spaces on each side
