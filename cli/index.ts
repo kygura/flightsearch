@@ -4,7 +4,7 @@ import { Table } from "console-table-printer";
 
 // Local imports
 import { FlightEntry, Insights, reqParams } from '../types';
-import { parseDateString } from '../helpers';
+import { parseDateString } from '../tools';
 
 
 export function printFlights(flights: FlightEntry[],

@@ -6,9 +6,7 @@ import { getJson } from "serpapi";
 import { Insights, apiParams, Result, reqParams, FlightEntry } from '../types/index.ts';
 
 let API_KEY = Bun.env.SERPAPI_KEY || process.env.SERPAPI_KEY || null
-
-if (!API_KEY) console.error(chalk.red("No API KEY set. Add a SERPAPI_KEY to the .env file"));
-//if (!API_KEY) throw new Error("No API KEY set. Add a SERPAPI_KEY to the .env file");
+if (!API_KEY) console.error(chalk.red("No API KEY set. \nAdd a SERPAPI_KEY to the .env file"));
 
 
 async function fetchFlights(cliParams: reqParams) {

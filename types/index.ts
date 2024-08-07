@@ -28,11 +28,6 @@ export interface FlightEntry {
   arrival?: string
 }
 
-export interface Result {
-  bestEntries: any[]
-  fallbackEntries: any[]
-  jsonData: JSON | any
-}
 
 export interface Insights {
   priceRange: [number,number]  //Defines a 2-element array
@@ -41,6 +36,11 @@ export interface Insights {
 }
 
 
+export interface Result {
+  bestEntries: any[]
+  fallbackEntries: any[]
+  jsonData: JSON | any
+}
 
 
 
