@@ -1,10 +1,17 @@
 // countries.ts
 
-interface Airports {
+interface AIRPORT_PROPS {
+  code: string[3];
+  name: string;
+  isMain: boolean;
+  //country: string;
+}
+
+interface COUNTRIES {
   [country: string] : string[]
 }
 
-export const airportCodes: Airports = {
+export const countryMap: COUNTRIES = {
   "USA": ["ATL", "LAX", "ORD", "DFW", "JFK"],
   "CANADA": ["YYZ", "YVR", "YYC", "YUL", "YOW"],
   "UK": ["LHR", "LGW", "MAN", "STN", "EDI"],
@@ -54,4 +61,5 @@ export const airportCodes: Airports = {
   "VENEZUELA": ["CCS", "MAR", "VLN", "PMV", "BLA"],
 };
 
-export default airportCodes;
+
+export default countryMap

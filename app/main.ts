@@ -8,21 +8,9 @@ import type { Answers } from 'prompts';
 import { reqParams } from '../types/index.ts';
 import { printFlights, printPriceInsights } from '../cli/index.ts';
 import fetchFlights from '../api/index.ts';
-import { assertFuture, formatDate, 
-saveFlightsAsMarkdown, getAirPortsList, isAirport, isCountry } from "../helpers/index.ts";
+import {getLocation,assertFuture, formatDate, saveToMarkdownFile}
+from "../helpers/index.ts";
 
-
-function getLocation(choice: string): string[] {
-  let locations: string[] // = []
-
-  if (isAirport(choice)) {
-    locations = [choice.toUpperCase()];
-  }
-  else if (isCountry(choice)) {
-    locations = getAirPortsList(choice);
-  }
-  return locations;
-}
 
 let crwapper = chalk.italic.cyan;
 let msgErr = chalk.red.bold
@@ -36,8 +24,9 @@ async function app() {
     verticalLayout: 'fitted',
     width: 100
   }))
-  );
-  intro(crwapper.bgWhite("A simple flight-searching tool\n"));
+  )
+
+  intro(crwapper.bgWhite("A cli flight-searching tool\n"));
 
   const s = spinner();
 
@@ -148,7 +137,7 @@ async function searchFlights(params: reqParams) {
 
   // Save results in a file
   try {
-  await saveFlightsAsMarkdown(bestFlights, params);
+  await saveToMarkdownFile(bestFlights, params);
 
 
   const filename = `${params.outbound}_${params.destination}_

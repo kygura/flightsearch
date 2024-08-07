@@ -1,43 +1,48 @@
-import chalk from "chalk";
+//import chalk from "chalk";
 import fs from "node:fs"
 
-import { FlightEntry, Insights, reqParams } from "../types/index.ts";
+import { FlightEntry, reqParams } from "../types/index.ts";
 
 
-import airportCodes from '../constants/countries.ts';
+import countryMap from '../constants/countries.ts';
 
 export const CURRENT_YEAR = new Date().getFullYear()
-//export function space(): void {console.log("\n")}
+
+//export const space = (): void => void console.log("\n")
 
 
-// This function checks  wether date1 is set in a future (newer) date
-// than date 2
-export function assertFuture(date1: Date, date2: Date) {
-  return date1.getTime() > date2.getTime() 
+export function getLocation(choice: string): string[] {
+  let locations: string[] // = []
+
+  if (isAirport(choice)) {
+    locations = [choice.toUpperCase()];
+  }
+  if (isCountry(choice)) {
+    locations = getListFromCountry(choice);
+  }
+  return locations;
 }
 
-
-
-export function getAirPortsList(country: string) {
-  const airports = airportCodes[country.toUpperCase()];
-  if (!airports || airports.length === 0) {
+export function getListFromCountry(country: string) {
+  const airports = countryMap[country.toUpperCase()];
+  if (!airports || airports.length == 0) {
     throw new Error(`No airports found in the list for ${country}`);
   }
   return airports;
 }
 
 export function isAirport(code: string): boolean {
-  const codes = Object.values(airportCodes).flat();
+  const codes = Object.values(countryMap).flat();
   return codes.includes(code.toUpperCase());
 }
 
 export function isCountry(country: string): boolean {
-  const countries = Object.keys(airportCodes);
+  const countries = Object.keys(countryMap);
   return countries.includes(country.toUpperCase());
 }
 
-export const parseDateString = (dateString: string) => {
-  if (dateString === "NaN/NaN") return "N/A";
+export function parseDateString (dateString: string) {
+  if (dateString == null) return "N/A";
 
   const date = new Date(dateString);
   const day = date.getDate().toString().padStart(2, '0');
@@ -55,13 +60,15 @@ export function formatDate(date: string): string {
 }
 
 
+// This function checks  wether date1 is set in a future (newer) date
+// than date 2
+export function assertFuture(date1: Date, date2: Date) {
+  return date1.getTime() > date2.getTime() 
+}
 
 
 
-
-
-
-export async function saveFlightsAsMarkdown(flightEntries: FlightEntry[],
+export async function saveToMarkdownFile(flightEntries: FlightEntry[],
 params: reqParams) {
   let {outbound, destination, departDate, returnDate} = params;
   
@@ -105,13 +112,15 @@ params: reqParams) {
   content += `|${'-'.repeat(originHeader.length)}|
   ${'-'.repeat(destinationHeader.length)}|${'-'.repeat(priceHeader.length)}|${'-'.repeat(departureHeader.length)}|${'-'.repeat(arrivalHeader.length)}|\n`;
 
+
+
   flightEntries.forEach(flight => {
-    const originPadded = centerText(flight.origin ? flight.origin : outbound, widths.origin);
-    const destinationPadded = centerText(flight.destination ? flight.destination : destination, widths.destination);
-    const pricePadded = `${flight.price}€`.padStart(5).padEnd(widths.price);
-    const departurePadded = parseDateString(flight.departure ? flight.departure : departDate)
+    let originPadded = centerText(flight.origin ? flight.origin : outbound, widths.origin);
+    let destinationPadded = centerText(flight.destination ? flight.destination : destination, widths.destination);
+    let pricePadded = `${flight.price}€`.padStart(5).padEnd(widths.price);
+    let departurePadded = parseDateString(flight.departure ? flight.departure : departDate)
     .padEnd(widths.departure);
-    const arrivalPadded = parseDateString(flight.arrival ? flight.arrival : returnDate)
+    let arrivalPadded = parseDateString(flight.arrival ? flight.arrival : returnDate)
     .padEnd(widths.arrival);
 
     content += `| ${originPadded} | ${destinationPadded} | ${pricePadded} |
@@ -119,12 +128,11 @@ params: reqParams) {
   })
 
   let filename = `${params.outbound}_${params.destination}
-  _${params.departDate.replace(/\//g, '-')}.md`;
+  _${flightEntries[0].price}.md`;
   let mdpath = `./md/${filename}`
   
   fs.writeFileSync(mdpath, content)
   //await Bun.write(
-  //Bun.file(mdpath),
-  //content
-  //);
+  //Bun.file(mdpath),content)
+
 }
