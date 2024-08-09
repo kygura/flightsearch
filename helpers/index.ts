@@ -41,15 +41,13 @@ export function getListFromCountry(country: string): string[] {
   return extractCodes(airports);
 }
 
-export function getLocation(choice: string): Airport[] {
+export function validateInput(choice: string): Airport[] {
   if (isCountry(choice)) {
     const airports = extractAirports(choice);
     return  airports
   }
   if (isAirport(choice)) {
-    return [{
-    code: choice
-    }];
+    return [{code: choice}]
   }
   throw new Error(`Invalid location: ${choice}`);
 }
