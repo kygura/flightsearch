@@ -24,7 +24,7 @@ async function app() {
     width: 100
   })));
 
-  intro(crwapper.bgWhite("A cli flight-searching tool\n"));
+  intro(crwapper.blue("A cli flight-searching tool\n"));
   let s = spinner();
 
   let onCancel = () => {
